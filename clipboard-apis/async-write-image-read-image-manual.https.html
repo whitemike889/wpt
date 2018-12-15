@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Async Clipboard writeImage -> readImage tests</title>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+
+<div>image to copy (then refresh):</div>
+<image id='image-to-copy' src="resources/greenbox.png"></image>
+<!-- TODO: extra image for testing only -->
+<div>image on clipboard (if no green box below, either copy image then refresh,
+or the test is failing):</div>
+<image id='image-on-clipboard'></image>
+
+<script>
+const getBlobData = (blob) => {
+  return new Promise((resolve) => {
+    const blobReader = new FileReader();
+    blobReader.addEventListener("loadend", () => {
+      resolve(blobReader.result);
+    });
+    blobReader.readAsBinaryString(blob);
+  });
+};
+
+promise_test( async(t) => {
+  // This implies the image is already on the clipboard
+  const input = await navigator.clipboard.readImage();
+
+  await navigator.clipboard.writeImage(input);
+  const output = await navigator.clipboard.readImage();
+
+  // Read input and output blobs to compare later
+  const binaryInput = await getBlobData(input);
+  const binaryOutput = await getBlobData(output);
+
+  // TODO: this for testing only. Remove before shipping.
+  document.getElementById('image-on-clipboard').src =
+        window.URL.createObjectURL(new Blob([output]));
+
+  assert_equals(binaryOutput, binaryInput);
+}, "Verify write and read clipboard (DOMString)");
+</script>
+<br/><br/>
+Note: This is a manual test because it writes/reads to the shared system
+clipboard and thus cannot be run async with other tests that might interact
+with the clipboard.
+<br/><br/>
+To run test, please copy the green box image via right click context menu >
+copy image, then refresh the page. The bottom image should display the same
+image as the top image.

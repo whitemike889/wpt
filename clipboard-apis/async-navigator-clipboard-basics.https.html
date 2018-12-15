@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<title>Async Clipboard basic tests</title>
+<title>Async Clipboard input type validation tests</title>
 <script src="/resources/testharness.js"></script>
 <script src="/resources/testharnessreport.js"></script>
 <script>
@@ -46,6 +46,20 @@ promise_test(function(t) {
                          navigator.clipboard.writeText());
 }, "navigator.clipboard.writeText() fails (expect DOMString)");
 
+/* clipboard.writeImage() */
+
+promise_test(function() {
+  // TODO (huangdarwin): How do I put a real image here for this test?
+  // aka how do we make images in JS? Is this the API we want?
+  const image = new SkBitmap();
+  return navigator.clipboard.writeImage(image);
+}, "navigator.clipboard.writeImage(SkBitmap) succeeds");
+
+promise_test(function(t) {
+  return promise_rejects(t, new TypeError(),
+                         navigator.clipboard.writeImage());
+}, "navigator.clipboard.writeImage() fails (expect SkBitmap)");
+
 
 /* clipboard.read() */
 
@@ -65,5 +79,15 @@ promise_test(function() {
       assert_equals(typeof result, "string");
     });
 }, "navigator.clipboard.readText() succeeds");
+
+// /* clipboard.readImage() */
+
+// promise_test(function() {
+//   return navigator.clipboard.readImage()
+//     .then(function(result) {
+//       // TODO (huangdarwin): What type is this supposed to be???
+//       assert_equals(typeof result, "SkBitmap");
+//     });
+// }, "navigator.clipboard.readImage() succeeds");
 
 </script>
